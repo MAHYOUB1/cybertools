@@ -12,11 +12,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # ترقية الأداة إلى v4 لمنع التحذيرات والتوافق مع البيئة الحديثة
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # تعديل الأمر إلى docker compose (بمسافة وبدون شرطة)
       - name: Start Application Services
         run: |
           docker compose up -d
@@ -26,17 +24,17 @@ jobs:
           echo "Waiting for services to boot up..."
           sleep 15
 
+      # تشغيل الفحص باستخدام صورة مستقرة ومحددة الإصدار من مستودع جيت هاب (GHCR)
       - name: Run OWASP ZAP Baseline Scan
         run: |
           mkdir -p zap-reports
           docker run --rm \
             --network cybertools-secure-network \
             -v $(pwd)/zap-reports:/zap/wrk/:rw \
-            owasp/zap2docker-stable zap-baseline.py \
+            ghcr.io/zaproxy/zap2docker-stable:2.13.0 zap-baseline.py \
             -t http://cybertools-frontend:80 \
             -r security-report.html
 
-      # تعديل الأمر هنا أيضاً إلى docker compose (بدون شرطة)
       - name: Stop and Clean Up Containers
         if: always()
         run: |

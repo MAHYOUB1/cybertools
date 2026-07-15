@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة البائع - CyberTools</title>
+<link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body>
+<nav class="navbar">
+  <a href="/index.html" class="navbar-brand"><span class="logo-icon">🛡️</span> CyberTools</a>
+  <ul class="navbar-nav">
+    <li><a href="/index.html">الرئيسية</a></li>
+    <li><a href="/seller-dashboard.html" class="active">لوحة البائع</a></li>
+  </ul>
+  <div class="navbar-actions"></div>
+</nav>
+
+<main class="main-content">
+  <div class="dashboard-layout">
+    <aside class="sidebar">
+      <div class="sidebar-section">المتجر</div>
+      <ul class="sidebar-nav">
+        <li><a href="#" class="active" onclick="showSec('overview',event)"><span class="icon icon-sm">dashboard</span> نظرة عامة</a></li>
+        <li><a href="#" onclick="showSec('products',event)"><span class="icon icon-sm">inventory_2</span> منتجاتي</a></li>
+        <li><a href="#" onclick="showSec('orders',event)"><span class="icon icon-sm">receipt_long</span> الطلبات</a></li>
+        <li><a href="#" onclick="showSec('store',event)"><span class="icon icon-sm">store</span> إعدادات المتجر</a></li>
+      </ul>
+      <div class="sidebar-section">الحساب</div>
+      <ul class="sidebar-nav">
+        <li><a href="/profile.html"><span class="icon icon-sm">manage_accounts</span> الملف الشخصي</a></li>
+        <li><a href="/products.html"><span class="icon icon-sm">open_in_new</span> عرض المتجر</a></li>
+      </ul>
+    </aside>
+
+    <div style="padding:2rem">
+
+      <!-- Overview -->
+      <div id="sec-overview">
+        <h1 style="font-size:1.8rem;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.5rem">
+          <span class="icon icon-green">storefront</span> لوحة تحكم البائع
+        </h1>
+        <p style="color:var(--text-secondary);margin-bottom:2rem">إدارة متجرك ومنتجاتك وطلباتك</p>
+
+        <div class="grid grid-4" id="seller-stats">
+          <div class="spinner"></div>
+        </div>
+
+        <div style="margin-top:2rem">
+          <h2 style="font-size:1.1rem;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem">
+            <span class="icon icon-yellow">trending_up</span> أعلى منتجاتي مبيعاً
+          </h2>
+          <div class="card" id="seller-top"><div class="spinner"></div></div>
+        </div>
+
+        <div style="margin-top:2rem">
+          <h2 style="font-size:1.1rem;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem">
+            <span class="icon icon-cyan">receipt</span> آخر الطلبات
+          </h2>
+          <div class="card" id="seller-orders"><div class="spinner"></div></div>
+        </div>
+      </div>
+
+      <!-- Products -->
+      <div id="sec-products" style="display:none">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem">
+          <h1 style="font-size:1.8rem;display:flex;align-items:center;gap:0.5rem">
+            <span class="icon icon-green">inventory_2</span> منتجاتي
+          </h1>
+          <button onclick="showAddProduct()" class="btn btn-primary">
+            <span class="icon">add</span> إضافة منتج
+          </button>
+        </div>
+
+        <!-- Add Product Form -->
+        <div id="add-product-form" style="display:none;margin-bottom:1.5rem">
+          <div class="card">
+            <h3 style="margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem">
+              <span class="icon icon-green">add_box</span> إضافة منتج جديد
+            </h3>
+            <form onsubmit="addProduct(event)">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+                <div class="form-group"><label class="form-label">اسم المنتج</label><input type="text" id="p-name" class="form-control" required></div>
+                <div class="form-group"><label class="form-label">السعر (ر.س)</label><input type="number" id="p-price" class="form-control" step="0.01" required></div>
+                <div class="form-group">
+                  <label class="form-label">الفئة</label>
+                  <select id="p-cat" class="form-control">
+                    <option value="1">فحص الثغرات</option><option value="2">مكافحة الفيروسات</option>
+                    <option value="3">جدران الحماية</option><option value="4">تحليل الشبكات</option>
+                    <option value="5">أدوات التشفير</option><option value="6">اختبار الاختراق</option>
+                  </select>
+                </div>
+                <div class="form-group"><label class="form-label">المخزون</label><input type="number" id="p-stock" class="form-control" value="10"></div>
+                <div class="form-group" style="grid-column:1/-1"><label class="form-label">الوصف</label><textarea id="p-desc" class="form-control" rows="3"></textarea></div>
+              </div>
+              <div style="display:flex;gap:0.75rem">
+                <button type="submit" class="btn btn-primary"><span class="icon">save</span> حفظ</button>
+                <button type="button" onclick="document.getElementById('add-product-form').style.display='none'" class="btn btn-danger"><span class="icon">close</span> إلغاء</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="card" id="my-products-list"><div class="spinner"></div></div>
+      </div>
+
+      <!-- Orders -->
+      <div id="sec-orders" style="display:none">
+        <h1 style="font-size:1.8rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:0.5rem">
+          <span class="icon icon-cyan">receipt_long</span> طلبات منتجاتي
+        </h1>
+        <div class="card" id="seller-orders-list"><div class="spinner"></div></div>
+      </div>
+
+      <!-- Store Settings -->
+      <div id="sec-store" style="display:none">
+        <h1 style="font-size:1.8rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:0.5rem">
+          <span class="icon icon-green">store</span> إعدادات المتجر
+        </h1>
+        <div class="card">
+          <form onsubmit="saveStore(event)">
+            <div class="form-group"><label class="form-label">اسم المتجر</label><input type="text" id="store-name" class="form-control"></div>
+            <div class="form-group"><label class="form-label">وصف المتجر</label><textarea id="store-desc" class="form-control" rows="3"></textarea></div>
+            <div class="form-group">
+              <label class="form-label">
+                <span class="icon icon-sm icon-red">upload</span>
+                شعار المتجر
+                <span style="font-size:0.75rem;color:var(--accent-red);margin-right:0.3rem">[ثغرة: رفع بدون تحقق]</span>
+              </label>
+              <input type="file" id="store-logo" class="form-control" accept="*/*">
+            </div>
+            <button type="submit" class="btn btn-primary"><span class="icon">save</span> حفظ الإعدادات</button>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<script src="/assets/js/crypto.js"></script><script src="/assets/js/main.js"></script>
+<script>
+async function loadSellerStats() {
+  try {
+    const res = await api('/seller/stats.php');
+    const s = res.stats;
+    document.getElementById('seller-stats').innerHTML = `
+      <div class="stat-card"><div class="stat-icon green"><span class="icon icon-green">inventory_2</span></div><div><div class="stat-value">${s.total_products}</div><div class="stat-label">منتجاتي</div></div></div>
+      <div class="stat-card"><div class="stat-icon cyan"><span class="icon icon-cyan">receipt</span></div><div><div class="stat-value">${s.total_orders}</div><div class="stat-label">الطلبات</div></div></div>
+      <div class="stat-card"><div class="stat-icon yellow"><span class="icon icon-yellow">payments</span></div><div><div class="stat-value">${formatPrice(s.total_revenue)}</div><div class="stat-label">إجمالي المبيعات</div></div></div>
+      <div class="stat-card"><div class="stat-icon purple"><span class="icon" style="color:#a78bfa">percent</span></div><div><div class="stat-value">${formatPrice(s.commission)}</div><div class="stat-label">العمولة</div></div></div>`;
+
+    const top = document.getElementById('seller-top');
+    top.innerHTML = res.top_products?.length
+      ? `<table class="table"><thead><tr><th>المنتج</th><th>السعر</th><th>المبيعات</th></tr></thead><tbody>
+          ${res.top_products.map(p=>`<tr><td>${p.name}</td><td>${formatPrice(p.price)}</td><td><span class="badge badge-green">${p.sold}</span></td></tr>`).join('')}
+         </tbody></table>`
+      : `<p style="color:var(--text-muted);text-align:center;padding:1.5rem">لا توجد مبيعات بعد</p>`;
+
+    const ord = document.getElementById('seller-orders');
+    ord.innerHTML = res.recent_orders?.length
+      ? `<table class="table"><thead><tr><th>رقم الطلب</th><th>المنتج</th><th>الكمية</th><th>الإجمالي</th><th>الحالة</th></tr></thead><tbody>
+          ${res.recent_orders.map(o=>`<tr><td class="mono" style="font-size:0.8rem;color:var(--accent-green)">${o.order_number}</td><td>${o.product_name}</td><td>${o.quantity}</td><td>${formatPrice(o.total)}</td><td><span class="badge badge-cyan">${o.status}</span></td></tr>`).join('')}
+         </tbody></table>`
+      : `<p style="color:var(--text-muted);text-align:center;padding:1.5rem">لا توجد طلبات بعد</p>`;
+  } catch {
+    document.getElementById('seller-stats').innerHTML = `
+      <div class="stat-card"><div class="stat-icon green"><span class="icon icon-green">inventory_2</span></div><div><div class="stat-value">—</div><div class="stat-label">منتجاتي</div></div></div>
+      <div class="stat-card"><div class="stat-icon cyan"><span class="icon icon-cyan">receipt</span></div><div><div class="stat-value">—</div><div class="stat-label">الطلبات</div></div></div>
+      <div class="stat-card"><div class="stat-icon yellow"><span class="icon icon-yellow">payments</span></div><div><div class="stat-value">—</div><div class="stat-label">الإيرادات</div></div></div>
+      <div class="stat-card"><div class="stat-icon purple"><span class="icon" style="color:#a78bfa">percent</span></div><div><div class="stat-value">—</div><div class="stat-label">العمولة</div></div></div>`;
+    document.getElementById('seller-top').innerHTML = `<p style="color:var(--text-muted);text-align:center;padding:1.5rem">يتطلب تشغيل Docker</p>`;
+    document.getElementById('seller-orders').innerHTML = `<p style="color:var(--text-muted);text-align:center;padding:1.5rem">يتطلب تشغيل Docker</p>`;
+  }
+}
+
+function showSec(name, e) {
+  if (e) e.preventDefault();
+  ['overview','products','orders','store'].forEach(s => {
+    document.getElementById(`sec-${s}`).style.display = s === name ? 'block' : 'none';
+  });
+  document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.remove('active'));
+  if (e) e.target.closest('a').classList.add('active');
+  if (name === 'products') loadMyProducts();
+}
+
+function showAddProduct() {
+  document.getElementById('add-product-form').style.display = 'block';
+}
+
+async function addProduct(e) {
+  e.preventDefault();
+  try {
+    await api('/products.php', {
+      method: 'POST',
+      body: JSON.stringify({
+        name: document.getElementById('p-name').value,
+        price: document.getElementById('p-price').value,
+        category_id: document.getElementById('p-cat').value,
+        stock: document.getElementById('p-stock').value,
+        description: document.getElementById('p-desc').value,
+      }),
+    });
+    showToast('تم إضافة المنتج بنجاح', 'success');
+    document.getElementById('add-product-form').style.display = 'none';
+    loadMyProducts();
+  } catch (err) { showToast(err.message, 'error'); }
+}
+
+async function loadMyProducts() {
+  const el = document.getElementById('my-products-list');
+  try {
+    const res = await api('/products.php?limit=20');
+    el.innerHTML = res.data?.length
+      ? `<table class="table"><thead><tr><th>المنتج</th><th>السعر</th><th>المخزون</th><th>التقييم</th><th>إجراءات</th></tr></thead>
+         <tbody>${res.data.map(p=>`
+           <tr>
+             <td><strong>${p.name}</strong><br><span style="font-size:0.8rem;color:var(--text-muted)">${p.category_name||''}</span></td>
+             <td style="color:var(--accent-green)">${formatPrice(p.price)}</td>
+             <td><span class="badge ${p.stock>5?'badge-green':'badge-red'}">${p.stock}</span></td>
+             <td>${renderStars(p.rating||0)}</td>
+             <td style="display:flex;gap:0.4rem">
+               <a href="/product-details.html?id=${p.id}" class="btn btn-secondary btn-sm"><span class="icon icon-sm">visibility</span></a>
+               <button onclick="deleteProduct(${p.id})" class="btn btn-danger btn-sm"><span class="icon icon-sm">delete</span></button>
+             </td>
+           </tr>`).join('')}
+         </tbody></table>`
+      : `<p style="color:var(--text-muted);text-align:center;padding:2rem">لا توجد منتجات</p>`;
+  } catch { el.innerHTML = `<p style="color:var(--text-muted);text-align:center;padding:2rem">يتطلب تشغيل Docker</p>`; }
+}
+
+async function deleteProduct(id) {
+  if (!confirm('هل تريد حذف هذا المنتج؟')) return;
+  try {
+    await api(`/products.php?id=${id}`, { method: 'DELETE' });
+    showToast('تم حذف المنتج', 'info');
+    loadMyProducts();
+  } catch (err) { showToast(err.message, 'error'); }
+}
+
+function saveStore(e) {
+  e.preventDefault();
+  showToast('تم حفظ إعدادات المتجر (تجريبي)', 'success');
+}
+
+loadSellerStats();
+</script>
+</body>
+</html>

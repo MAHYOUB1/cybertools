@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>إتمام الدفع - CyberTools</title>
+<link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body>
+<nav class="navbar">
+  <a href="/index.html" class="navbar-brand"><span class="logo-icon">🛡️</span> CyberTools</a>
+  <ul class="navbar-nav">
+    <li><a href="/index.html">الرئيسية</a></li>
+    <li><a href="/cart.html">السلة</a></li>
+  </ul>
+  <div class="navbar-actions"></div>
+</nav>
+
+<main class="main-content">
+  <div class="container" style="padding-top:2rem;padding-bottom:4rem">
+    <h1 style="font-size:2rem;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.75rem">
+      <span class="icon icon-green icon-xl">payment</span> إتمام الدفع
+    </h1>
+
+
+
+    <div style="display:grid;grid-template-columns:1fr 360px;gap:2rem">
+
+      <!-- Checkout Form -->
+      <div>
+        <!-- Step Indicator -->
+        <div style="display:flex;align-items:center;gap:0;margin-bottom:2rem">
+          <div style="display:flex;align-items:center;gap:0.5rem;color:var(--accent-green)">
+            <span class="icon">shopping_cart</span>
+            <span style="font-size:0.85rem;font-weight:600">السلة</span>
+          </div>
+          <div style="flex:1;height:2px;background:var(--accent-green);margin:0 0.75rem"></div>
+          <div style="display:flex;align-items:center;gap:0.5rem;color:var(--accent-green)">
+            <span class="icon">local_shipping</span>
+            <span style="font-size:0.85rem;font-weight:600">الشحن</span>
+          </div>
+          <div style="flex:1;height:2px;background:var(--border);margin:0 0.75rem"></div>
+          <div style="display:flex;align-items:center;gap:0.5rem;color:var(--text-muted)">
+            <span class="icon">payment</span>
+            <span style="font-size:0.85rem">الدفع</span>
+          </div>
+        </div>
+
+        <form id="checkout-form" onsubmit="processCheckout(event)">
+
+          <!-- Billing Info -->
+          <div class="card" style="margin-bottom:1.5rem">
+            <h3 style="font-size:1rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem">
+              <span class="icon icon-cyan">person_pin</span> بيانات الفوترة
+            </h3>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+              <div class="form-group">
+                <label class="form-label">الاسم الكامل</label>
+                <input type="text" id="billing_name" class="form-control" placeholder="الاسم الكامل" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">البريد الإلكتروني</label>
+                <input type="email" id="billing_email" class="form-control" placeholder="example@email.com" required>
+              </div>
+              <div class="form-group" style="grid-column:1/-1">
+                <label class="form-label">رقم الهاتف</label>
+                <input type="tel" id="billing_phone" class="form-control" placeholder="05xxxxxxxx">
+              </div>
+              <div class="form-group" style="grid-column:1/-1">
+                <label class="form-label">عنوان الشحن</label>
+                <textarea id="address" class="form-control" rows="2" placeholder="المدينة، الحي، الشارع..."></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Payment Method -->
+          <div class="card" style="margin-bottom:1.5rem">
+            <h3 style="font-size:1rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem">
+              <span class="icon icon-green">credit_card</span> طريقة الدفع
+            </h3>
+
+
+            <div style="display:flex;gap:1rem;margin-bottom:1.5rem">
+              <label style="flex:1;cursor:pointer">
+                <input type="radio" name="pay_method" value="credit_card" checked onchange="togglePayMethod(this.value)" style="display:none" id="radio-cc">
+                <div id="tab-cc" style="border:2px solid var(--accent-green);border-radius:12px;padding:1rem;text-align:center;background:rgba(0,255,136,0.05)">
+                  <span class="icon icon-green">credit_card</span>
+                  <p style="font-size:0.85rem;margin-top:0.3rem;font-weight:600">بطاقة ائتمانية</p>
+                </div>
+              </label>
+              <label style="flex:1;cursor:pointer">
+                <input type="radio" name="pay_method" value="bank_transfer" onchange="togglePayMethod(this.value)" style="display:none">
+                <div id="tab-bt" style="border:1px solid var(--border);border-radius:12px;padding:1rem;text-align:center">
+                  <span class="icon icon-muted">account_balance</span>
+                  <p style="font-size:0.85rem;margin-top:0.3rem;color:var(--text-secondary)">حوالة بنكية</p>
+                </div>
+              </label>
+            </div>
+
+            <!-- Credit Card Fields -->
+            <div id="cc-fields">
+              <div class="alert alert-info" style="margin-bottom:1.25rem;font-size:0.8rem">
+                <span class="icon icon-sm">info</span>
+                <div>
+                  <strong>بطاقات اختبار وهمية:</strong><br>
+                  Visa: <code>4532015112830366</code> | MC: <code>5425233430109903</code> — كلاهما 12/25 | CVV: 123
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label"><span class="icon icon-sm icon-cyan">credit_card</span> رقم البطاقة</label>
+                <input type="text" id="card_number" class="form-control mono" placeholder="xxxx xxxx xxxx xxxx" maxlength="19" oninput="formatCard(this)">
+              </div>
+              <div class="form-group">
+                <label class="form-label"><span class="icon icon-sm icon-cyan">person</span> اسم حامل البطاقة</label>
+                <input type="text" id="card_holder" class="form-control" placeholder="الاسم كما في البطاقة">
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+                <div class="form-group">
+                  <label class="form-label"><span class="icon icon-sm icon-cyan">calendar_month</span> تاريخ الانتهاء</label>
+                  <input type="text" id="card_expiry" class="form-control mono" placeholder="MM/YY" maxlength="5" oninput="formatExpiry(this)">
+                </div>
+                <div class="form-group">
+                  <label class="form-label"><span class="icon icon-sm icon-cyan">lock</span> CVV</label>
+                  <input type="password" id="card_cvv" class="form-control mono" placeholder="123" maxlength="4">
+                </div>
+              </div>
+            </div>
+
+            <!-- Bank Transfer Fields -->
+            <div id="bt-fields" style="display:none">
+              <div class="card" style="background:var(--bg-card2)">
+                <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:0.75rem">تفاصيل الحساب البنكي:</p>
+                <div style="font-family:monospace;font-size:0.9rem;display:flex;flex-direction:column;gap:0.4rem">
+                  <span>البنك: بنك الراجحي</span>
+                  <span>رقم الحساب: SA12 3456 7890 1234 5678</span>
+                  <span>الاسم: CyberTools Store</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block btn-lg" id="pay-btn">
+            <span class="icon">lock</span> إتمام الدفع الآمن
+          </button>
+        </form>
+      </div>
+
+      <!-- Order Summary -->
+      <div>
+        <div class="card" style="position:sticky;top:80px">
+          <h3 style="font-size:1rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem">
+            <span class="icon icon-cyan">receipt</span> ملخص الطلب
+          </h3>
+          <div id="checkout-items" style="margin-bottom:1.25rem"></div>
+          <div class="cyber-line"></div>
+          <div style="display:flex;flex-direction:column;gap:0.6rem;margin:1rem 0">
+            <div style="display:flex;justify-content:space-between;font-size:0.9rem;color:var(--text-secondary)">
+              <span>المجموع الفرعي</span><span id="co-subtotal">—</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:0.9rem;color:var(--text-secondary)">
+              <span>الضريبة (15%)</span><span id="co-tax">—</span>
+            </div>
+          </div>
+          <div class="cyber-line"></div>
+          <div style="display:flex;justify-content:space-between;font-size:1.2rem;font-weight:700;margin-top:1rem">
+            <span>الإجمالي</span><span id="co-total" style="color:var(--accent-green)">—</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Success Modal -->
+<div id="success-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:9999;display:none;align-items:center;justify-content:center">
+  <div class="card" style="max-width:440px;width:90%;text-align:center;padding:2.5rem">
+    <span class="icon icon-2xl icon-green" style="display:block;margin-bottom:1rem">check_circle</span>
+    <h2 style="font-size:1.6rem;margin-bottom:0.75rem">تم الدفع بنجاح!</h2>
+    <p style="color:var(--text-secondary);margin-bottom:0.5rem">رقم الطلب: <strong id="order-num" style="color:var(--accent-green)"></strong></p>
+    <p style="color:var(--text-secondary);font-size:0.85rem;margin-bottom:1.5rem">سيتم إرسال تفاصيل الطلب على بريدك الإلكتروني</p>
+    <a href="/profile.html" class="btn btn-primary btn-block">
+      <span class="icon">receipt_long</span> عرض طلباتي
+    </a>
+  </div>
+</div>
+
+<script src="/assets/js/crypto.js"></script><script src="/assets/js/main.js"></script>
+<script>
+// تحميل ملخص الطلب
+function loadSummary() {
+  const items    = Cart.get();
+  const subtotal = Cart.total();
+  const tax      = subtotal * 0.15;
+  const total    = subtotal + tax;
+
+  document.getElementById('checkout-items').innerHTML = items.map(i => `
+    <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:0.6rem">
+      <span style="color:var(--text-secondary)">${DOMPurify.sanitize(i.name)} × ${i.quantity}</span>
+      <span>${formatPrice(i.price * i.quantity)}</span>
+    </div>`).join('');
+
+  document.getElementById('co-subtotal').textContent = formatPrice(subtotal);
+  document.getElementById('co-tax').textContent      = formatPrice(tax);
+  document.getElementById('co-total').textContent    = formatPrice(total);
+
+  // Pre-fill user data
+  const user = Auth.getUser();
+  if (user) {
+    document.getElementById('billing_name').value  = user.name  || '';
+    document.getElementById('billing_email').value = user.email || '';
+  }
+}
+
+function togglePayMethod(val) {
+  const isCC = val === 'credit_card';
+  document.getElementById('cc-fields').style.display = isCC ? 'block' : 'none';
+  document.getElementById('bt-fields').style.display = isCC ? 'none' : 'block';
+  document.getElementById('tab-cc').style.border = isCC ? '2px solid var(--accent-green)' : '1px solid var(--border)';
+  document.getElementById('tab-cc').style.background = isCC ? 'rgba(0,255,136,0.05)' : '';
+  document.getElementById('tab-bt').style.border = !isCC ? '2px solid var(--accent-cyan)' : '1px solid var(--border)';
+}
+
+function formatCard(el) {
+  let v = el.value.replace(/\D/g, '').substring(0, 16);
+  el.value = v.replace(/(.{4})/g, '$1 ').trim();
+}
+
+function formatExpiry(el) {
+  let v = el.value.replace(/\D/g, '');
+  if (v.length >= 2) v = v.substring(0, 2) + '/' + v.substring(2, 4);
+  el.value = v;
+}
+
+async function processCheckout(e) {
+  e.preventDefault();
+  const btn = document.getElementById('pay-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="icon">hourglass_empty</span> جارٍ معالجة الدفع...';
+
+  const user = Auth.getUser();
+  if (!user) { window.location.href = '/login.html?redirect=/checkout.html'; return; }
+
+  const items = Cart.get();
+  if (items.length === 0) { showToast('السلة فارغة!', 'warning'); return; }
+
+  try {
+    // إنشاء الطلب
+    const orderRes = await api('/orders.php', {
+      method: 'POST',
+      body: JSON.stringify({
+        items:         items,
+        billing_name:  document.getElementById('billing_name').value,
+        billing_email: document.getElementById('billing_email').value,
+        billing_phone: document.getElementById('billing_phone').value,
+        address:       document.getElementById('address').value,
+      }),
+    });
+
+    // معالجة الدفع (نظام وهمي)
+    await api('/payments.php', {
+      method: 'POST',
+      body: JSON.stringify({
+        order_id:    orderRes.order_id,
+        method:      document.querySelector('[name="pay_method"]:checked').value,
+        card_number: (document.getElementById('card_number').value || '').replace(/\s/g, ''),
+        card_holder: document.getElementById('card_holder').value,
+        card_expiry: document.getElementById('card_expiry').value,
+        card_cvv:    document.getElementById('card_cvv').value,
+      }),
+    });
+
+    Cart.clear();
+    document.getElementById('order-num').textContent = orderRes.order_number;
+    document.getElementById('success-modal').style.display = 'flex';
+
+  } catch (err) {
+    showToast(err.message || 'فشل الدفع. تحقق من بيانات البطاقة.', 'error');
+    btn.disabled = false;
+    btn.innerHTML = '<span class="icon">lock</span> إتمام الدفع الآمن';
+  }
+}
+
+loadSummary();
+</script>
+</body>
+</html>

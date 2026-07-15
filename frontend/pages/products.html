@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>المنتجات - CyberTools</title>
+<link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body>
+<nav class="navbar">
+  <a href="/index.html" class="navbar-brand"><span class="icon icon-green icon-lg">security</span> CyberTools</a>
+  <ul class="navbar-nav">
+    <li><a href="/index.html"><span class="icon icon-sm">home</span> الرئيسية</a></li>
+    <li><a href="/products.html" class="active"><span class="icon icon-sm">inventory_2</span> المنتجات</a></li>
+    <li><a href="/contact.html"><span class="icon icon-sm">email</span> اتصل بنا</a></li>
+  </ul>
+  <div class="navbar-actions"></div>
+</nav>
+
+<main class="main-content">
+  <div class="container" style="padding-top:2rem;padding-bottom:4rem">
+
+    <!-- Page Header -->
+    <div style="margin-bottom:2rem">
+      <h1 style="font-size:2rem;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.5rem">
+        <span class="icon icon-green icon-xl">inventory_2</span> جميع المنتجات
+      </h1>
+      <p style="color:var(--text-secondary)">اكتشف مجموعتنا الكاملة من أدوات الأمن السيبراني</p>
+    </div>
+
+    <div style="display:grid;grid-template-columns:260px 1fr;gap:2rem">
+
+      <!-- Sidebar Filters -->
+      <aside>
+        <div class="card" style="position:sticky;top:80px">
+          <h3 style="margin-bottom:1.25rem;font-size:1rem;display:flex;align-items:center;gap:0.5rem">
+            <span class="icon icon-green">tune</span> تصفية المنتجات
+          </h3>
+
+          <!-- Search -->
+          <div class="form-group">
+            <label class="form-label"><span class="icon icon-sm icon-cyan">search</span> البحث</label>
+            <!-- [ثغرة تعليمية] XSS Reflected - يعكس قيمة البحث في الصفحة -->
+            <input type="text" id="search-input" class="form-control" placeholder="ابحث عن أداة..." oninput="applyFilters()">
+          </div>
+
+          <!-- Category -->
+          <div class="form-group">
+            <label class="form-label"><span class="icon icon-sm icon-cyan">category</span> الفئة</label>
+            <select id="category-filter" class="form-control" onchange="applyFilters()">
+              <option value="">جميع الفئات</option>
+              <option value="1">فحص الثغرات</option>
+              <option value="2">مكافحة الفيروسات</option>
+              <option value="3">جدران الحماية</option>
+              <option value="4">تحليل الشبكات</option>
+              <option value="5">أدوات التشفير</option>
+              <option value="6">اختبار الاختراق</option>
+            </select>
+          </div>
+
+          <!-- Price Range -->
+          <div class="form-group">
+            <label class="form-label"><span class="icon icon-sm icon-cyan">payments</span> السعر الأقصى: <span id="price-label">1000</span> ر.س</label>
+            <input type="range" id="price-filter" min="0" max="1000" value="1000" style="width:100%;accent-color:var(--accent-green)" oninput="document.getElementById('price-label').textContent=this.value;applyFilters()">
+          </div>
+
+          <!-- Sort -->
+          <div class="form-group">
+            <label class="form-label"><span class="icon icon-sm icon-cyan">sort</span> الترتيب</label>
+            <select id="sort-filter" class="form-control" onchange="applyFilters()">
+              <option value="created_at">الأحدث</option>
+              <option value="price_asc">السعر: الأقل</option>
+              <option value="price_desc">السعر: الأعلى</option>
+              <option value="rating">الأعلى تقييماً</option>
+            </select>
+          </div>
+
+          <!-- License Type -->
+          <div class="form-group">
+            <label class="form-label" style="margin-bottom:0.5rem"><span class="icon icon-sm icon-cyan">description</span> نوع الترخيص</label>
+            <div style="display:flex;flex-direction:column;gap:0.4rem">
+              <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;font-size:0.85rem;color:var(--text-secondary)">
+                <input type="checkbox" value="single" class="license-check" onchange="applyFilters()" style="accent-color:var(--accent-green)"> فردي
+              </label>
+              <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;font-size:0.85rem;color:var(--text-secondary)">
+                <input type="checkbox" value="multi" class="license-check" onchange="applyFilters()" style="accent-color:var(--accent-green)"> متعدد
+              </label>
+              <label style="display:flex;align-items:center;gap:0.5rem;cursor:pointer;font-size:0.85rem;color:var(--text-secondary)">
+                <input type="checkbox" value="enterprise" class="license-check" onchange="applyFilters()" style="accent-color:var(--accent-green)"> مؤسسي
+              </label>
+            </div>
+          </div>
+
+          <button class="btn btn-danger btn-block btn-sm" onclick="resetFilters()">
+            <span class="icon icon-sm">autorenew</span> إعادة ضبط الفلاتر
+          </button>
+        </div>
+      </aside>
+
+      <!-- Products Grid -->
+      <div>
+        <!-- Results Bar -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem">
+          <div>
+            <!-- [ثغرة تعليمية] XSS Reflected - عرض نتيجة البحث بدون تعقيم -->
+            <span id="results-count" style="color:var(--text-secondary);font-size:0.9rem">جارٍ التحميل...</span>
+          </div>
+          <div style="display:flex;gap:0.5rem">
+            <button id="view-grid" onclick="setView('grid')" style="padding:0.4rem 0.7rem;background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.3);border-radius:8px;color:var(--accent-green);cursor:pointer"><span class="icon icon-sm">grid_view</span></button>
+            <button id="view-list" onclick="setView('list')" style="padding:0.4rem 0.7rem;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;color:var(--text-muted);cursor:pointer"><span class="icon icon-sm">view_list</span></button>
+          </div>
+        </div>
+
+        <div id="products-grid" class="grid grid-3">
+          <div class="spinner"></div>
+        </div>
+
+        <!-- Pagination -->
+        <div id="pagination" style="display:flex;justify-content:center;gap:0.5rem;margin-top:2rem"></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="/assets/js/crypto.js"></script><script src="/assets/js/main.js"></script>
+<script>
+let allProducts = [];
+let currentView = 'grid';
+let currentPage = 1;
+
+// تحويل النصوص للغة العربية بترميز صحيح 100%
+const DEMO_PRODUCTS = [
+  {id:1,name:'VulnScan Pro',price:299,original_price:399,rating:4.8,reviews_count:124,category_name:'فحص الثغرات',category_id:1,short_description:'فاحص ثغرات احترافي متعدد المنصات',license_type:'multi',platform:'Windows/Linux/Mac'},
+  {id:2,name:'WebVulner Scanner',price:199,original_price:249,rating:4.6,reviews_count:89,category_name:'فحص الثغرات',category_id:1,short_description:'فاحص ثغرات تطبيقات الويب',license_type:'single',platform:'Windows/Linux'},
+  {id:3,name:'NetVuln Detector',price:449,original_price:599,rating:4.7,reviews_count:56,category_name:'فحص الثغرات',category_id:1,short_description:'كاشف ثغرات الشبكات بالجملة',license_type:'enterprise',platform:'Windows/Linux'},
+  {id:4,name:'API Security Tester',price:179,original_price:219,rating:4.4,reviews_count:43,category_name:'فحص الثغرات',category_id:1,short_description:'اختبار أمان API متخصص',license_type:'single',platform:'Windows/Linux/Mac'},
+  {id:5,name:'CloudSec Scanner',price:399,original_price:499,rating:4.9,reviews_count:78,category_name:'فحص الثغرات',category_id:1,short_description:'فاحص أمان البيئات السحابية',license_type:'enterprise',platform:'Cloud-based'},
+  {id:6,name:'CyberShield Antivirus',price:89,original_price:119,rating:4.5,reviews_count:312,category_name:'مكافحة الفيروسات',category_id:2,short_description:'مكافح فيروسات بالذكاء الاصطناعي',license_type:'single',platform:'Windows/Mac'},
+  {id:7,name:'MalwareHunter Pro',price:129,original_price:169,rating:4.7,reviews_count:187,category_name:'مكافحة الفيروسات',category_id:2,short_description:'مستأصل البرمجيات الخبيثة المتقدم',license_type:'multi',platform:'Windows'},
+  {id:8,name:'RansomGuard Shield',price:149,original_price:199,rating:4.8,reviews_count:234,category_name:'مكافحة الفيروسات',category_id:2,short_description:'درع الحماية من برامج الفدية',license_type:'single',platform:'Windows/Linux'},
+  {id:9,name:'EndpointDefender',price:299,original_price:399,rating:4.6,reviews_count:98,category_name:'مكافحة الفيروسات',category_id:2,short_description:'حماية متكاملة لنقاط النهاية',license_type:'enterprise',platform:'Windows/Mac/Linux'},
+  {id:10,name:'MobileSecure AV',price:49,original_price:69,rating:4.3,reviews_count:456,category_name:'مكافحة الفيروسات',category_id:2,short_description:'مكافح فيروسات الأجهزة المحمولة',license_type:'single',platform:'Android/iOS'},
+  {id:11,name:'FireWall Ultimate',price:599,original_price:799,rating:4.9,reviews_count:67,category_name:'جدران الحماية',category_id:3,short_description:'جدار حماية للشبكات الكبيرة',license_type:'enterprise',platform:'Hardware/Software'},
+  {id:12,name:'PersonalFirewall Pro',price:79,original_price:99,rating:4.4,reviews_count:189,category_name:'جدران الحماية',category_id:3,short_description:'جدار حماية شخصي متقدم',license_type:'single',platform:'Windows'},
+  {id:13,name:'WAF Guardian',price:349,original_price:449,rating:4.7,reviews_count:112,category_name:'جدران الحماية',category_id:3,short_description:'جدار حماية تطبيقات الويب WAF',license_type:'multi',platform:'Cloud/On-Premise'},
+  {id:14,name:'NetworkShield Firewall',price:499,original_price:649,rating:4.8,reviews_count:78,category_name:'جدران الحماية',category_id:3,short_description:'جدار حماية شبكي متكامل',license_type:'enterprise',platform:'Windows/Linux'},
+  {id:15,name:'MicroFirewall Lite',price:59,original_price:79,rating:4.2,reviews_count:234,category_name:'جدران الحماية',category_id:3,short_description:'جدار حماية خفيف للشبكات الصغيرة',license_type:'single',platform:'Windows/Linux'},
+  {id:16,name:'NetAnalyzer Elite',price:259,original_price:329,rating:4.8,reviews_count:145,category_name:'تحليل الشبكات',category_id:4,short_description:'محلل شبكات في الوقت الفعلي',license_type:'multi',platform:'Windows/Linux'},
+  {id:17,name:'TrafficInspector Pro',price:219,original_price:279,rating:4.5,reviews_count:89,category_name:'تحليل الشبكات',category_id:4,short_description:'مفتش حركة الشبكة المتقدم',license_type:'single',platform:'Windows/Linux'},
+  {id:18,name:'PacketSniffer Pro',price:189,original_price:239,rating:4.6,reviews_count:167,category_name:'تحليل الشبكات',category_id:4,short_description:'أداة التقاط الحزم الاحترافية',license_type:'single',platform:'Windows/Linux/Mac'},
+  {id:19,name:'BandwidthMonitor Enterprise',price:329,original_price:429,rating:4.7,reviews_count:56,category_name:'تحليل الشبكات',category_id:4,short_description:'مراقب النطاق الترددي للمؤسسات',license_type:'enterprise',platform:'Windows/Linux'},
+  {id:20,name:'WiFiAudit Scanner',price:149,original_price:189,rating:4.4,reviews_count:123,category_name:'تحليل الشبكات',category_id:4,short_description:'فاحص أمان شبكات WiFi',license_type:'single',platform:'Windows/Linux'},
+  {id:21,name:'CryptoVault Pro',price:169,original_price:219,rating:4.7,reviews_count:198,category_name:'أدوات التشفير',category_id:5,short_description:'تشفير الملفات بمعيار AES-256',license_type:'multi',platform:'Windows/Mac/Linux'},
+  {id:22,name:'SecureEmail Crypto',price:99,original_price:129,rating:4.5,reviews_count:134,category_name:'أدوات التشفير',category_id:5,short_description:'تشفير البريد الإلكتروني بـ PGP',license_type:'single',platform:'Windows/Mac/Linux'},
+  {id:23,name:'DiskEncryptor Elite',price:229,original_price:299,rating:4.8,reviews_count:245,category_name:'أدوات التشفير',category_id:5,short_description:'تشفير كامل للقرص الصلب',license_type:'single',platform:'Windows/Linux'},
+  {id:24,name:'PasswordVault Manager',price:79,original_price:99,rating:4.6,reviews_count:567,category_name:'أدوات التشفير',category_id:5,short_description:'مدير كلمات المرور الآمن',license_type:'multi',platform:'Windows/Mac/iOS/Android'},
+  {id:25,name:'VPN CipherShield',price:129,original_price:169,rating:4.9,reviews_count:389,category_name:'أدوات التشفير',category_id:5,short_description:'VPN مشفر بدون سجلات',license_type:'single',platform:'Windows/Mac/Linux/Mobile'},
+  {id:26,name:'PenTest Framework Pro',price:799,original_price:999,rating:4.9,reviews_count:312,category_name:'اختبار الاختراق',category_id:6,short_description:'إطار عمل اختبار الاختراق الشامل',license_type:'enterprise',platform:'Linux/Kali'},
+  {id:27,name:'WebPenTester Suite',price:399,original_price:499,rating:4.7,reviews_count:189,category_name:'اختبار الاختراق',category_id:6,short_description:'مجموعة اختبار اختراق الويب',license_type:'multi',platform:'Windows/Linux'},
+  {id:28,name:'NetworkPenTest Pro',price:499,original_price:649,rating:4.8,reviews_count:145,category_name:'اختبار الاختراق',category_id:6,short_description:'اختبار اختراق الشبكات المتقدم',license_type:'enterprise',platform:'Linux/Windows'},
+  {id:29,name:'SocialEng Toolkit',price:249,original_price:319,rating:4.5,reviews_count:98,category_name:'اختبار الاختراق',category_id:6,short_description:'محاكي هجمات الهندسة الاجتماعية',license_type:'single',platform:'Windows/Linux'},
+  {id:30,name:'WiFiCrack Auditor',price:349,original_price:449,rating:4.6,reviews_count:167,category_name:'اختبار الاختراق',category_id:6,short_description:'مدقق أمان شبكات WiFi المتقدم',license_type:'single',platform:'Linux/Kali'}
+];
+
+const ICONS = {
+  1: '<span class="icon" style="font-size:inherit">bug_report</span>',
+  2: '<span class="icon" style="font-size:inherit">coronavirus</span>',
+  3: '<span class="icon" style="font-size:inherit">local_fire_department</span>',
+  4: '<span class="icon" style="font-size:inherit">podcasts</span>',
+  5: '<span class="icon" style="font-size:inherit">lock</span>',
+  6: '<span class="icon" style="font-size:inherit">policy</span>'
+};
+
+async function loadProducts() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const catId  = params.get('category') || document.getElementById('category-filter').value;
+    if (catId) document.getElementById('category-filter').value = catId;
+    const res = await api(`/products.php?limit=30`);
+    allProducts = res.data || DEMO_PRODUCTS;
+  } catch { allProducts = DEMO_PRODUCTS; }
+  applyFilters();
+}
+
+function applyFilters() {
+  const search   = document.getElementById('search-input').value.toLowerCase();
+  const category = document.getElementById('category-filter').value;
+  const maxPrice = parseInt(document.getElementById('price-filter').value);
+  const sort     = document.getElementById('sort-filter').value;
+  const licenses = [...document.querySelectorAll('.license-check:checked')].map(c => c.value);
+
+  let filtered = allProducts.filter(p => {
+    if (search && !p.name.toLowerCase().includes(search) && !(p.short_description||'').toLowerCase().includes(search)) return false;
+    if (category && p.category_id != category) return false;
+    if (p.price > maxPrice) return false;
+    if (licenses.length > 0 && !licenses.includes(p.license_type)) return false;
+    return true;
+  });
+
+  if (sort === 'price_asc')  filtered.sort((a,b) => a.price - b.price);
+  if (sort === 'price_desc') filtered.sort((a,b) => b.price - a.price);
+  if (sort === 'rating')     filtered.sort((a,b) => b.rating - a.rating);
+
+  const countEl = document.getElementById('results-count');
+  if (search) {
+    countEl.innerHTML = `نتائج البحث عن: <strong style="color:var(--accent-green)">"${DOMPurify.sanitize(search)}"</strong> — ${filtered.length} منتج`;
+  } else {
+    countEl.textContent = `${filtered.length} منتج`;
+  }
+
+  renderProducts(filtered);
+}
+
+function renderProducts(products) {
+  const grid = document.getElementById('products-grid');
+  if (products.length === 0) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:4rem 0;color:var(--text-muted)">
+      <div style="font-size:3rem;margin-bottom:1rem"><span class="icon icon-2xl">search_off</span></div>
+      <p>لا توجد منتجات تطابق البحث</p>
+    </div>`;
+    return;
+  }
+  const isGrid = currentView === 'grid';
+  grid.className = isGrid ? 'grid grid-3' : 'grid';
+  grid.innerHTML = products.map(p => isGrid ? renderGridCard(p) : renderListCard(p)).join('');
+}
+
+function renderGridCard(p) {
+  const disc = p.original_price ? Math.round((1 - p.price/p.original_price)*100) : 0;
+  return `
+  <a href="/product-details.html?id=${p.id}" class="product-card">
+    <div class="product-card-img" style="display:flex;align-items:center;justify-content:center;height:200px;background:var(--bg-card2);font-size:4rem;color:var(--accent-green);position:relative">
+      ${ICONS[p.category_id] || '<span class="icon" style="font-size:inherit">security</span>'}
+      ${disc>0?`<span style="position:absolute;top:0.75rem;right:0.75rem;background:var(--accent-red);color:#fff;font-size:0.7rem;font-weight:700;padding:0.2rem 0.5rem;border-radius:100px">-${disc}%</span>`:''}
+    </div>
+    <div class="product-card-body">
+      <div class="product-category">${p.category_name}</div>
+      <div class="product-name">${p.name}</div>
+      <div class="product-desc">${p.short_description||''}</div>
+      <div style="margin-bottom:0.75rem;display:flex;gap:0.4rem;flex-wrap:wrap">
+        <span class="badge badge-cyan" style="font-size:0.7rem">${p.license_type==='single'?'فردي':p.license_type==='multi'?'متعدد':'مؤسسي'}</span>
+        <span class="badge badge-purple" style="font-size:0.7rem">${p.platform||''}</span>
+      </div>
+      <div class="product-meta">
+        <div>
+          ${p.original_price?`<span class="product-price-old">${formatPrice(p.original_price)}</span>`:''}
+          <span class="product-price">${formatPrice(p.price)}</span>
+        </div>
+        <div class="product-rating" style="display:flex;align-items:center;gap:0.2rem">
+          <span class="icon icon-sm icon-yellow">star</span> ${parseFloat(p.rating||0).toFixed(1)} <span style="color:var(--text-muted)">(${p.reviews_count||0})</span>
+        </div>
+      </div>
+    </div>
+  </a>`;
+}
+
+function renderListCard(p) {
+  return `
+  <div class="card" style="display:flex;gap:1.5rem;align-items:center" onclick="window.location.href='/product-details.html?id=${p.id}'" style="cursor:pointer">
+    <div style="font-size:3rem;color:var(--accent-green);flex-shrink:0;width:80px;height:80px;display:flex;align-items:center;justify-content:center;background:var(--bg-card2);border-radius:12px">
+      ${ICONS[p.category_id] || '<span class="icon" style="font-size:inherit">security</span>'}
+    </div>
+    <div style="flex:1">
+      <div class="product-category">${p.category_name}</div>
+      <a href="/product-details.html?id=${p.id}" style="font-size:1.1rem;font-weight:600;color:var(--text-primary);text-decoration:none">${p.name}</a>
+      <p style="font-size:0.85rem;color:var(--text-secondary);margin-top:0.25rem">${p.short_description||''}</p>
+    </div>
+    <div style="text-align:left;flex-shrink:0">
+      <div class="product-price">${formatPrice(p.price)}</div>
+      <div class="product-rating" style="justify-content:flex-end;display:flex;align-items:center;gap:0.2rem">
+        <span class="icon icon-sm icon-yellow">star</span> ${parseFloat(p.rating||0).toFixed(1)}
+      </div>
+      <button class="btn btn-primary btn-sm" style="margin-top:0.5rem" onclick="event.stopPropagation();addToCartFromList(${p.id},'${p.name}',${p.price})">
+        <span class="icon icon-sm">add_shopping_cart</span> السلة
+      </button>
+    </div>
+  </div>`;
+}
+
+function addToCartFromList(id, name, price) {
+  Cart.add({id, name, price});
+}
+
+function setView(view) {
+  currentView = view;
+  document.getElementById('view-grid').style.background = view==='grid' ? 'rgba(0,255,136,0.1)' : 'var(--bg-card)';
+  document.getElementById('view-list').style.background = view==='list' ? 'rgba(0,255,136,0.1)' : 'var(--bg-card)';
+  applyFilters();
+}
+
+function resetFilters() {
+  document.getElementById('search-input').value = '';
+  document.getElementById('category-filter').value = '';
+  document.getElementById('price-filter').value = 1000;
+  document.getElementById('price-label').textContent = '1000';
+  document.getElementById('sort-filter').value = 'created_at';
+  document.querySelectorAll('.license-check').forEach(c => c.checked = false);
+  applyFilters();
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  const params = new URLSearchParams(window.location.search);
+  const cat = params.get('category');
+  if (cat) document.getElementById('category-filter').value = cat;
+  loadProducts();
+});
+</script>
+</body>
+</html>

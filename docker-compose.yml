@@ -1,0 +1,121 @@
+version: '3.9'
+
+# ================================================================
+# CyberTools Store - Docker Compose (مؤمّن)
+# ================================================================
+# الشبكة: cybertools-net تربط ثلاثة containers
+#   1. db       ← MySQL 8.0
+#   2. backend  ← PHP 8.1 + Apache (API)
+#   3. frontend ← Nginx (HTML Pages)
+# ================================================================
+
+networks:
+  cybertools-secure-net:
+    driver: bridge
+    name: cybertools-secure-network
+    # شبكة داخلية - تمنع الحاويات من الاتصال بالإنترنت مباشرة
+    internal: false
+
+volumes:
+  mysql_data:
+    name: cybertools-mysql-data
+
+services:
+
+  # ============================================================
+  # 1. قاعدة البيانات - MySQL 8.0
+  # ============================================================
+  db:
+    image: mysql:8.0
+    container_name: cybertools-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-rootpass123}
+      MYSQL_DATABASE: cybertools
+      MYSQL_USER: cyberuser
+      MYSQL_PASSWORD: ${DB_PASSWORD:-cyberpass123}
+    # لا نعرض منفذ MySQL للخارج (حماية)
+    # ports:
+    #   - "3306:3306"
+    expose:
+      - "3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./database/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
+    networks:
+      - cybertools-secure-net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "cyberuser", "-pcyberpass123"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    # حدود الموارد
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  # ============================================================
+  # 2. الخلفية - PHP 8.1 + Apache (REST API)
+  # ============================================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: cybertools-backend
+    restart: unless-stopped
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: cybertools
+      DB_USER: cyberuser
+      DB_PASS: ${DB_PASSWORD:-cyberpass123}
+      APP_ENV: production
+      APP_DEBUG: "false"
+      # مفتاح تشفير AES-256 للـ API Gateway
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:-c7b3a9f1e2d4b6a8c0e2f4d6b8a0c2e4f6d8a0b2c4e6f8a0b2c4d6e8f0a2b4}
+      ALLOWED_ORIGIN: "http://localhost:4000"
+    # لا نعرض منفذ الباك إند للخارج مباشرة
+    # ports:
+    #   - "8080:80"
+    expose:
+      - "80"
+    volumes:
+      - ./backend/api:/var/www/html/api
+      - ./backend/includes:/var/www/html/includes
+      - ./backend/uploads:/var/www/html/uploads
+    networks:
+      - cybertools-secure-net
+    depends_on:
+      db:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
+  # ============================================================
+  # 3. الواجهة الأمامية - Nginx (HTML + Static Files)
+  # ============================================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: cybertools-frontend
+    restart: unless-stopped
+    ports:
+      - "4000:80"
+    volumes:
+      - ./frontend/pages:/usr/share/nginx/html
+      - ./frontend/assets:/usr/share/nginx/html/assets
+      - ./frontend/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - cybertools-secure-net
+    depends_on:
+      - backend
+    deploy:
+      resources:
+        limits:
+          memory: 128M

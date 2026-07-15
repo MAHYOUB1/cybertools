@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تسجيل بائع جديد - CyberTools</title>
+<link rel="stylesheet" href="/assets/css/style.css">
+<style>
+  .auth-container { max-width: 800px; margin: 4rem auto; padding: 0 1rem; }
+  .auth-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 2.5rem; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+  .auth-header { text-align: center; margin-bottom: 2rem; }
+  .auth-header .icon { font-size: 3rem; color: var(--accent-green); margin-bottom: 1rem; }
+  .auth-title { font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .auth-subtitle { color: var(--text-secondary); }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  @media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; gap: 1rem; } }
+  .section-title { font-size: 1.1rem; color: var(--accent-cyan); margin: 1.5rem 0 1rem; display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
+</style>
+</head>
+<body>
+<nav class="navbar">
+  <a href="/index.html" class="navbar-brand"><span class="logo-icon">🛡️</span> CyberTools</a>
+  <ul class="navbar-nav">
+    <li><a href="/index.html">الرئيسية</a></li>
+    <li><a href="/products.html">المنتجات</a></li>
+  </ul>
+  <div class="navbar-actions">
+    <a href="/login.html" class="btn btn-outline">تسجيل الدخول</a>
+  </div>
+</nav>
+
+<main class="main-content">
+  <div class="auth-container">
+    <div class="auth-card">
+      <div class="auth-header">
+        <span class="icon">storefront</span>
+        <h1 class="auth-title">كن بائعاً في CyberTools</h1>
+        <p class="auth-subtitle">افتح متجرك وابدأ ببيع أدواتك الأمنية للآلاف من المختصين!</p>
+      </div>
+
+      <form id="seller-register-form" onsubmit="handleSellerRegister(event)">
+        <!-- بيانات الحساب -->
+        <h2 class="section-title"><span class="icon icon-sm">person</span> بيانات الحساب الشخصي</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">اسم المستخدم (للدخول)</label>
+            <div class="input-icon">
+              <span class="icon">account_circle</span>
+              <input type="text" id="reg-username" class="form-control" placeholder="username" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">البريد الإلكتروني</label>
+            <div class="input-icon">
+              <span class="icon">email</span>
+              <input type="email" id="reg-email" class="form-control" placeholder="example@email.com" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">الاسم الأول</label>
+            <input type="text" id="reg-first" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">الاسم الأخير</label>
+            <input type="text" id="reg-last" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">رقم الهاتف</label>
+            <input type="tel" id="reg-phone" class="form-control" placeholder="05xxxxxxxx">
+          </div>
+          <div class="form-group">
+            <label class="form-label">كلمة المرور <span style="color:var(--accent-red);font-size:0.75rem">[ثغرة: تحفظ كنص صريح]</span></label>
+            <div class="input-icon">
+              <span class="icon">lock</span>
+              <input type="password" id="reg-password" class="form-control" required>
+            </div>
+          </div>
+        </div>
+
+        <!-- بيانات المتجر -->
+        <h2 class="section-title"><span class="icon icon-sm">store</span> بيانات المتجر</h2>
+        <div class="form-grid">
+          <div class="form-group" style="grid-column: 1 / -1">
+            <label class="form-label">اسم المتجر</label>
+            <input type="text" id="store-name" class="form-control" placeholder="أدخل اسم متجرك المميز" required>
+          </div>
+          <div class="form-group" style="grid-column: 1 / -1">
+            <label class="form-label">وصف المتجر (اختياري)</label>
+            <textarea id="store-desc" class="form-control" rows="3" placeholder="نبذة مختصرة عن الأدوات التي تقدمها..."></textarea>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top:2rem" id="reg-btn">
+          <span class="icon">rocket_launch</span> إنشاء المتجر والبدء الآن
+        </button>
+      </form>
+      
+      <p style="text-align:center;margin-top:2rem;color:var(--text-secondary)">
+        لديك حساب بالفعل؟ <a href="/login.html" style="color:var(--accent-green);text-decoration:none">سجل دخولك هنا</a>
+      </p>
+    </div>
+  </div>
+</main>
+
+<script src="/assets/js/crypto.js"></script><script src="/assets/js/main.js"></script>
+<script>
+async function handleSellerRegister(e) {
+  e.preventDefault();
+  const btn = document.getElementById('reg-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="icon">hourglass_empty</span> جاري إنشاء المتجر...';
+
+  try {
+    const res = await api('/auth.php?action=register', {
+      method: 'POST',
+      body: JSON.stringify({
+        is_seller: true,
+        store_name: document.getElementById('store-name').value,
+        store_desc: document.getElementById('store-desc').value,
+        username:   document.getElementById('reg-username').value,
+        email:      document.getElementById('reg-email').value,
+        password:   document.getElementById('reg-password').value,
+        first_name: document.getElementById('reg-first').value,
+        last_name:  document.getElementById('reg-last').value,
+        phone:      document.getElementById('reg-phone').value,
+      }),
+    });
+    
+    Auth.set(res.user);
+    showToast('تم إنشاء متجرك بنجاح! جاري التوجيه...', 'success');
+    setTimeout(() => { window.location.href = '/seller-dashboard.html'; }, 1500);
+  } catch (err) {
+    showToast(err.message, 'error');
+    btn.disabled = false;
+    btn.innerHTML = '<span class="icon">rocket_launch</span> إنشاء المتجر والبدء الآن';
+  }
+}
+</script>
+</body>
+</html>

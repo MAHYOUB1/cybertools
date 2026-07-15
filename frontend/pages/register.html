@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>إنشاء حساب - CyberTools</title>
+<link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body>
+<nav class="navbar">
+  <a href="/index.html" class="navbar-brand"><span class="logo-icon">🛡️</span> CyberTools</a>
+  <ul class="navbar-nav">
+    <li><a href="/index.html">الرئيسية</a></li>
+    <li><a href="/products.html">المنتجات</a></li>
+  </ul>
+  <div class="navbar-actions"></div>
+</nav>
+
+<main class="main-content" style="display:flex;align-items:center;justify-content:center;min-height:100vh;padding:2rem 1rem;background:radial-gradient(ellipse at 70% 50%,rgba(0,212,255,0.05) 0%,transparent 60%),var(--bg-primary)">
+  <div style="width:100%;max-width:520px">
+
+    <div style="text-align:center;margin-bottom:2rem">
+      <div style="font-size:3rem;margin-bottom:1rem">🛡️</div>
+      <h1 style="font-size:1.8rem;margin-bottom:0.4rem">إنشاء حساب جديد</h1>
+      <p style="color:var(--text-secondary);font-size:0.9rem">انضم لمجتمع CyberTools التعليمي</p>
+    </div>
+
+
+
+    <div class="card">
+      <div id="alert-box"></div>
+
+      <form id="register-form" onsubmit="handleRegister(event)">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+          <div class="form-group">
+            <label class="form-label"><span class="icon icon-sm icon-cyan">badge</span> الاسم الأول</label>
+            <input type="text" id="first_name" class="form-control" placeholder="الاسم الأول" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span class="icon icon-sm icon-cyan">badge</span> الاسم الأخير</label>
+            <input type="text" id="last_name" class="form-control" placeholder="الاسم الأخير" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label"><span class="icon icon-sm icon-cyan">person</span> اسم المستخدم</label>
+          <input type="text" id="username" class="form-control" placeholder="اختر اسم مستخدم فريد" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label"><span class="icon icon-sm icon-cyan">email</span> البريد الإلكتروني</label>
+          <input type="email" id="email" class="form-control" placeholder="example@email.com" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label"><span class="icon icon-sm icon-cyan">phone</span> رقم الهاتف</label>
+          <input type="tel" id="phone" class="form-control" placeholder="05xxxxxxxx">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label"><span class="icon icon-sm icon-cyan">lock</span> كلمة المرور</label>
+          <div style="position:relative">
+            <input type="password" id="password" class="form-control" placeholder="كلمة مرور قوية" required oninput="checkPasswordStrength(this.value)" style="padding-left:2.5rem">
+            <button type="button" onclick="togglePw('password','ic1')" style="position:absolute;left:0.75rem;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-muted)">
+              <span class="icon icon-sm" id="ic1">visibility</span>
+            </button>
+          </div>
+          <!-- Password strength bar -->
+          <div style="margin-top:0.4rem;height:4px;background:var(--border);border-radius:2px;overflow:hidden">
+            <div id="strength-bar" style="height:100%;width:0%;transition:all 0.3s;border-radius:2px"></div>
+          </div>
+          <p id="strength-label" style="font-size:0.75rem;color:var(--text-muted);margin-top:0.25rem"></p>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label"><span class="icon icon-sm icon-cyan">lock_reset</span> تأكيد كلمة المرور</label>
+          <div style="position:relative">
+            <input type="password" id="confirm_password" class="form-control" placeholder="أعد إدخال كلمة المرور" required style="padding-left:2.5rem">
+            <button type="button" onclick="togglePw('confirm_password','ic2')" style="position:absolute;left:0.75rem;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-muted)">
+              <span class="icon icon-sm" id="ic2">visibility</span>
+            </button>
+          </div>
+        </div>
+
+        <div style="margin-bottom:1.25rem;display:flex;align-items:flex-start;gap:0.5rem">
+          <input type="checkbox" id="terms" style="margin-top:3px;accent-color:var(--accent-green)" required>
+          <label for="terms" style="font-size:0.85rem;color:var(--text-secondary);cursor:pointer">
+            أوافق على شروط الاستخدام وسياسة الخصوصية لمنصة CyberTools
+          </label>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block btn-lg" id="submit-btn">
+          <span class="icon">person_add</span> إنشاء الحساب
+        </button>
+      </form>
+
+      <div style="text-align:center;margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--border)">
+        <p style="color:var(--text-secondary);font-size:0.9rem;margin-bottom:0.75rem">
+          لديك حساب بالفعل؟ <a href="/login.html" style="color:var(--accent-green);text-decoration:none;font-weight:600">تسجيل الدخول</a>
+        </p>
+        <p style="color:var(--text-secondary);font-size:0.9rem">
+          تريد فتح متجر؟ <a href="/seller-register.html" style="color:var(--accent-cyan);text-decoration:none;font-weight:600">سجل كبائع</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="/assets/js/crypto.js"></script><script src="/assets/js/main.js"></script>
+<script>
+if (Auth.isLoggedIn()) window.location.href = '/index.html';
+
+async function handleRegister(e) {
+  e.preventDefault();
+  const password = document.getElementById('password').value;
+  const confirm  = document.getElementById('confirm_password').value;
+
+  if (password !== confirm) { showAlert('كلمات المرور غير متطابقة'); return; }
+
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="icon">hourglass_empty</span> جارٍ إنشاء الحساب...';
+
+  try {
+    const res = await api('/auth.php?action=register', {
+      method: 'POST',
+      body: JSON.stringify({
+        first_name: document.getElementById('first_name').value,
+        last_name:  document.getElementById('last_name').value,
+        username:   document.getElementById('username').value,
+        email:      document.getElementById('email').value,
+        phone:      document.getElementById('phone').value,
+        password,
+      }),
+    });
+    Auth.setUser(res.user);
+    showToast('تم إنشاء الحساب بنجاح!', 'success');
+    setTimeout(() => window.location.href = '/index.html', 900);
+  } catch (err) {
+    showAlert(err.message);
+    btn.disabled = false;
+    btn.innerHTML = '<span class="icon">person_add</span> إنشاء الحساب';
+  }
+}
+
+function showAlert(msg) {
+  document.getElementById('alert-box').innerHTML =
+    `<div class="alert alert-error" style="margin-bottom:1rem"><span class="icon icon-sm">error</span> ${DOMPurify.sanitize(msg)}</div>`;
+}
+
+function togglePw(id, iconId) {
+  const el = document.getElementById(id);
+  const ic = document.getElementById(iconId);
+  if (el.type === 'password') { el.type = 'text'; ic.textContent = 'visibility_off'; }
+  else { el.type = 'password'; ic.textContent = 'visibility'; }
+}
+
+function checkPasswordStrength(val) {
+  const bar   = document.getElementById('strength-bar');
+  const label = document.getElementById('strength-label');
+  let score   = 0;
+  if (val.length >= 8)          score++;
+  if (/[A-Z]/.test(val))        score++;
+  if (/[0-9]/.test(val))        score++;
+  if (/[^A-Za-z0-9]/.test(val)) score++;
+  const configs = [
+    { w:'0%',   c:'transparent', t:'' },
+    { w:'25%',  c:'#ff4444',     t:'ضعيفة' },
+    { w:'50%',  c:'#fbbf24',     t:'متوسطة' },
+    { w:'75%',  c:'#00d4ff',     t:'جيدة' },
+    { w:'100%', c:'#00ff88',     t:'قوية جداً' },
+  ];
+  bar.style.width      = configs[score].w;
+  bar.style.background = configs[score].c;
+  label.textContent    = configs[score].t;
+  label.style.color    = configs[score].c;
+}
+</script>
+</body>
+</html>

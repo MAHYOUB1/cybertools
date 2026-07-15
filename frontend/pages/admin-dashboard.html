@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة تحكم المسؤول - CyberTools</title>
+<link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body>
+<nav class="navbar">
+  <a href="/index.html" class="navbar-brand"><span class="icon icon-green icon-lg">security</span> CyberTools</a>
+  <ul class="navbar-nav">
+    <li><a href="/index.html"><span class="icon icon-sm">home</span> الرئيسية</a></li>
+    <li><a href="/admin-dashboard.html" class="active"><span class="icon icon-sm">admin_panel_settings</span> الإدارة</a></li>
+  </ul>
+  <div class="navbar-actions"></div>
+</nav>
+
+<main class="main-content">
+  <div class="dashboard-layout">
+    <aside class="sidebar">
+      <div class="sidebar-section">النظام</div>
+      <ul class="sidebar-nav">
+        <li><a href="#" class="active" onclick="showAdminSec('stats',event)"><span class="icon icon-sm">query_stats</span> الإحصائيات</a></li>
+        <li><a href="#" onclick="showAdminSec('users',event)"><span class="icon icon-sm">group</span> المستخدمين</a></li>
+        <li><a href="#" onclick="showAdminSec('tools',event)"><span class="icon icon-sm">construction</span> أدوات النظام</a></li>
+      </ul>
+      <div class="sidebar-section">المتجر</div>
+      <ul class="sidebar-nav">
+        <li><a href="/products.html"><span class="icon icon-sm">inventory_2</span> تصفح المتجر</a></li>
+      </ul>
+    </aside>
+
+    <div style="padding:2rem">
+
+
+      <!-- Stats Section -->
+      <div id="admin-sec-stats">
+        <h1 style="font-size:1.8rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:0.5rem">
+          <span class="icon icon-green">insights</span> إحصائيات المنصة
+        </h1>
+        <div class="grid grid-4" id="admin-stats-grid">
+          <div class="spinner"></div>
+        </div>
+      </div>
+
+      <!-- Users Section -->
+      <div id="admin-sec-users" style="display:none">
+        <h1 style="font-size:1.8rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:0.5rem">
+          <span class="icon icon-cyan">manage_accounts</span> إدارة المستخدمين
+        </h1>
+        <div class="card" id="admin-users-list">
+          <div class="spinner"></div>
+        </div>
+      </div>
+
+      <!-- System Tools Section (Command Injection) -->
+      <div id="admin-sec-tools" style="display:none">
+        <h1 style="font-size:1.8rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:0.5rem">
+          <span class="icon icon-red">terminal</span> أدوات الشبكة
+        </h1>
+        
+        <div class="card">
+          <h3 style="margin-bottom:1rem;color:var(--accent-red);display:flex;align-items:center;gap:0.5rem">
+            <span class="icon icon-sm">warning</span> أداة فحص الشبكة (Ping)
+          </h3>
+          <p style="font-size:0.9rem;color:var(--text-secondary);margin-bottom:1.5rem">هذه الأداة تستخدم للتحقق من اتصال الخوادم. أدخل عنوان IP صالح فقط.</p>
+          
+          <div style="display:flex;gap:1rem;margin-bottom:1.5rem">
+            <input type="text" id="ping-ip" class="form-control" placeholder="أدخل عنوان IP (مثال: 8.8.8.8)" style="flex:1">
+            <button onclick="runPing()" class="btn btn-primary" id="ping-btn"><span class="icon">play_arrow</span> تشغيل</button>
+          </div>
+          
+          <div style="background:#0a0a0a;border:1px solid #333;border-radius:8px;padding:1rem;font-family:monospace;min-height:150px;color:#0f0;white-space:pre-wrap;direction:ltr;text-align:left;overflow-x:auto" id="ping-output">
+// بانتظار إدخال عنوان IP صالح...
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<script src="/assets/js/crypto.js"></script><script src="/assets/js/main.js"></script>
+<script>
+async function loadAdminStats() {
+  try {
+    const res = await api('/admin/stats.php');
+    const s = res.stats;
+    document.getElementById('admin-stats-grid').innerHTML = `
+      <div class="stat-card"><div class="stat-icon green"><span class="icon icon-green">group</span></div><div><div class="stat-value">${s.total_users}</div><div class="stat-label">المستخدمين</div></div></div>
+      <div class="stat-card"><div class="stat-icon cyan"><span class="icon icon-cyan">storefront</span></div><div><div class="stat-value">${s.total_sellers}</div><div class="stat-label">البائعين</div></div></div>
+      <div class="stat-card"><div class="stat-icon purple"><span class="icon" style="color:#a78bfa">inventory_2</span></div><div><div class="stat-value">${s.total_products}</div><div class="stat-label">المنتجات</div></div></div>
+      <div class="stat-card"><div class="stat-icon yellow"><span class="icon icon-yellow">payments</span></div><div><div class="stat-value">${formatPrice(s.total_revenue)}</div><div class="stat-label">إجمالي المبيعات</div></div></div>`;
+  } catch (err) {
+    document.getElementById('admin-stats-grid').innerHTML = `<p style="grid-column:1/-1;color:var(--accent-red)">خطأ في تحميل الإحصائيات: ${err.message}</p>`;
+  }
+}
+
+async function loadAdminUsers() {
+  const el = document.getElementById('admin-users-list');
+  try {
+    const res = await api('/admin/stats.php?action=users');
+    el.innerHTML = `
+      <table class="table">
+        <thead><tr><th>المعرف</th><th>اسم المستخدم</th><th>البريد</th><th>الدور</th><th>الحالة</th></tr></thead>
+        <tbody>
+          ${res.data.map(u => `
+            <tr>
+              <td class="mono">${u.id}</td>
+              <td><strong>${u.username}</strong></td>
+              <td style="color:var(--text-secondary)">${u.email}</td>
+              <td><span class="badge ${u.role==='admin'?'badge-red':u.role==='seller'?'badge-cyan':'badge-green'}">${u.role}</span></td>
+              <td><span class="badge ${u.is_active?'badge-green':'badge-red'}">${u.is_active?'نشط':'موقوف'}</span></td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>`;
+  } catch (err) {
+    el.innerHTML = `<p style="color:var(--accent-red);padding:2rem;text-align:center">${err.message}</p>`;
+  }
+}
+
+async function runPing() {
+  const ip = document.getElementById('ping-ip').value;
+  const out = document.getElementById('ping-output');
+  const btn = document.getElementById('ping-btn');
+  
+  if (!ip) { showToast('يرجى إدخال عنوان IP', 'warning'); return; }
+  
+  btn.disabled = true;
+  out.textContent = `Running ping -c 2 ${ip}...\n\n`;
+  
+  try {
+    const res = await api(`/admin/stats.php?action=ping&ip=${encodeURIComponent(ip)}`);
+    out.textContent += res.output || 'No output returned.';
+  } catch (err) {
+    out.textContent += `Error: ${err.message}`;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function showAdminSec(name, e) {
+  if (e) e.preventDefault();
+  ['stats', 'users', 'tools'].forEach(s => {
+    document.getElementById(`admin-sec-${s}`).style.display = s === name ? 'block' : 'none';
+  });
+  document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.remove('active'));
+  if (e) e.target.closest('a').classList.add('active');
+  
+  if (name === 'users') loadAdminUsers();
+}
+
+window.addEventListener('DOMContentLoaded', loadAdminStats);
+</script>
+</body>
+</html>

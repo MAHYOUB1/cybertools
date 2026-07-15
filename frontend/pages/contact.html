@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>اتصل بنا - CyberTools</title>
+<link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body>
+<nav class="navbar">
+  <a href="/index.html" class="navbar-brand"><span class="logo-icon">🛡️</span> CyberTools</a>
+  <ul class="navbar-nav">
+    <li><a href="/index.html">الرئيسية</a></li>
+    <li><a href="/products.html">المنتجات</a></li>
+    <li><a href="/contact.html" class="active">اتصل بنا</a></li>
+  </ul>
+  <div class="navbar-actions"></div>
+</nav>
+
+<main class="main-content">
+  <div class="container" style="padding-top:3rem;padding-bottom:4rem">
+    <div class="section-header">
+      <span class="section-tag">📧 الدعم</span>
+      <h1 class="section-title">اتصل بنا</h1>
+      <p class="section-desc">نحن هنا للمساعدة. تواصل معنا في أي وقت</p>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2.5rem;margin-top:2rem">
+
+      <!-- Contact Form -->
+      <div class="card">
+        <h3 style="font-size:1.1rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:0.5rem">
+          <span class="icon icon-green">send</span> أرسل رسالة
+        </h3>
+        <div id="alert-box"></div>
+        <form onsubmit="sendMessage(event)">
+          <div class="form-group">
+            <label class="form-label"><span class="icon icon-sm icon-cyan">person</span> الاسم</label>
+            <input type="text" id="contact-name" class="form-control" placeholder="اسمك الكامل" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span class="icon icon-sm icon-cyan">email</span> البريد الإلكتروني</label>
+            <input type="email" id="contact-email" class="form-control" placeholder="example@email.com" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span class="icon icon-sm icon-cyan">subject</span> الموضوع</label>
+            <select id="contact-subject" class="form-control">
+              <option value="support">دعم تقني</option>
+              <option value="billing">استفسار فوترة</option>
+              <option value="bug">الإبلاغ عن مشكلة</option>
+              <option value="other">أخرى</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label"><span class="icon icon-sm icon-cyan">message</span> الرسالة</label>
+            <textarea id="contact-message" class="form-control" rows="5" placeholder="اكتب رسالتك هنا..." required></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block btn-lg">
+            <span class="icon">send</span> إرسال الرسالة
+          </button>
+        </form>
+      </div>
+
+      <!-- Contact Info -->
+      <div style="display:flex;flex-direction:column;gap:1.5rem">
+        <div class="card" style="display:flex;gap:1rem;align-items:flex-start">
+          <div class="stat-icon green"><span class="icon icon-green">email</span></div>
+          <div>
+            <h4 style="font-size:0.95rem;margin-bottom:0.25rem">البريد الإلكتروني</h4>
+            <p style="color:var(--text-secondary);font-size:0.85rem">support@cybertools.local</p>
+            <p style="color:var(--text-muted);font-size:0.8rem">نرد خلال 24 ساعة</p>
+          </div>
+        </div>
+
+        <div class="card" style="display:flex;gap:1rem;align-items:flex-start">
+          <div class="stat-icon cyan"><span class="icon icon-cyan">support_agent</span></div>
+          <div>
+            <h4 style="font-size:0.95rem;margin-bottom:0.25rem">الدعم الفني</h4>
+            <p style="color:var(--text-secondary);font-size:0.85rem">متاح 24/7 للمشتركين</p>
+            <p style="color:var(--text-muted);font-size:0.8rem">بيئة تعليمية محلية فقط</p>
+          </div>
+        </div>
+
+        <div class="card" style="display:flex;gap:1rem;align-items:flex-start">
+          <div class="stat-icon purple"><span class="icon" style="color:#a78bfa">school</span></div>
+          <div>
+            <h4 style="font-size:0.95rem;margin-bottom:0.25rem">الموارد التعليمية</h4>
+            <p style="color:var(--text-secondary);font-size:0.85rem">دليل شامل للثغرات الأمنية</p>
+            <a href="/docs/vulnerabilities-guide.md" style="color:var(--accent-green);font-size:0.85rem;text-decoration:none">عرض الدليل ←</a>
+          </div>
+        </div>
+
+
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="/assets/js/crypto.js"></script><script src="/assets/js/main.js"></script>
+<script>
+async function sendMessage(e) {
+  e.preventDefault();
+  showToast('تم إرسال رسالتك! سنتواصل معك قريباً.', 'success');
+  e.target.reset();
+}
+
+</script>
+</body>
+</html>

@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تفاصيل المنتج - CyberTools</title>
+<meta name="description" content="تفاصيل المنتج - منصة CyberTools لأدوات الأمن السيبراني">
+<link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body>
+<nav class="navbar">
+  <a href="/index.html" class="navbar-brand"><span class="icon icon-green icon-lg">security</span> CyberTools</a>
+  <ul class="navbar-nav">
+    <li><a href="/index.html"><span class="icon icon-sm">home</span> الرئيسية</a></li>
+    <li><a href="/products.html" class="active"><span class="icon icon-sm">inventory_2</span> المنتجات</a></li>
+    <li><a href="/contact.html"><span class="icon icon-sm">email</span> اتصل بنا</a></li>
+  </ul>
+  <div class="navbar-actions"></div>
+</nav>
+
+<main class="main-content">
+  <div class="container" style="padding-top:2rem;padding-bottom:4rem">
+
+    <!-- Breadcrumb -->
+    <nav style="margin-bottom:1.5rem;font-size:0.85rem;color:var(--text-muted);display:flex;align-items:center;gap:0.5rem">
+      <a href="/index.html" style="color:var(--text-muted);text-decoration:none">الرئيسية</a>
+      <span class="icon icon-sm">chevron_left</span>
+      <a href="/products.html" style="color:var(--text-muted);text-decoration:none">المنتجات</a>
+      <span class="icon icon-sm">chevron_left</span>
+      <span id="breadcrumb-name" style="color:var(--accent-green)">جارٍ التحميل...</span>
+    </nav>
+
+    <div style="display:grid;grid-template-columns:1fr 380px;gap:2.5rem" id="product-layout">
+      <!-- Skeleton Loader -->
+      <div style="grid-column:1/-1;text-align:center;padding:4rem 0"><div class="spinner"></div></div>
+    </div>
+
+    <!-- Reviews Section -->
+    <div style="margin-top:3rem" id="reviews-section" style="display:none">
+      <h2 style="font-size:1.5rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:0.5rem">
+        <span class="icon icon-green">rate_review</span> المراجعات والتقييمات
+      </h2>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem">
+        <!-- Review Form -->
+        <div class="card" id="review-form-card">
+          <h3 style="font-size:1rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem">
+            <span class="icon icon-sm icon-green">edit</span> أضف مراجعتك
+          </h3>
+          <div id="review-form-content">
+            <!-- يتم تحديثه بناءً على حالة الدخول -->
+          </div>
+        </div>
+
+        <!-- Reviews List -->
+        <div id="reviews-list">
+          <div class="spinner"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="/assets/js/crypto.js"></script>
+<script src="/assets/js/crypto.js"></script><script src="/assets/js/main.js"></script>
+<script>
+const ICONS = {
+  1: '<span class="icon" style="font-size:inherit">bug_report</span>',
+  2: '<span class="icon" style="font-size:inherit">coronavirus</span>',
+  3: '<span class="icon" style="font-size:inherit">local_fire_department</span>',
+  4: '<span class="icon" style="font-size:inherit">podcasts</span>',
+  5: '<span class="icon" style="font-size:inherit">lock</span>',
+  6: '<span class="icon" style="font-size:inherit">policy</span>'
+};
+
+const params = new URLSearchParams(window.location.search);
+const productId = parseInt(params.get('id'));
+
+if (!productId || isNaN(productId)) window.location.href = '/products.html';
+
+async function loadProduct() {
+  const layout = document.getElementById('product-layout');
+  try {
+    const res = await api(`/products.php?id=${productId}`);
+    const p   = res.data;
+    // استخدام textContent للأسماء (XSS-safe)
+    document.title = `${p.name} - CyberTools`;
+    document.getElementById('breadcrumb-name').textContent = p.name;
+
+    const disc = p.original_price ? Math.round((1 - p.price / p.original_price) * 100) : 0;
+
+    // البيانات آمنة لأنها معقّمة من الباك إند (sanitizeOutput)
+    layout.innerHTML = `
+      <!-- Product Image & Info -->
+      <div>
+        <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:20px;height:340px;display:flex;align-items:center;justify-content:center;font-size:8rem;color:var(--accent-green);margin-bottom:1.5rem">
+          ${ICONS[p.category_id] || '<span class="icon" style="font-size:inherit">security</span>'}
+        </div>
+
+        <h1 style="font-size:2rem;margin-bottom:0.75rem" id="product-title"></h1>
+
+        <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.25rem;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:0.25rem">
+            ${renderStars(parseFloat(p.rating || 0))}
+            <span style="color:var(--text-secondary);font-size:0.85rem;margin-right:0.3rem">${parseFloat(p.rating||0).toFixed(1)} (${p.reviews_count || 0} مراجعة)</span>
+          </div>
+          <span class="badge badge-green" id="cat-name"></span>
+          <span class="badge badge-cyan">${p.license_type === 'single' ? 'فردي' : p.license_type === 'multi' ? 'متعدد' : 'مؤسسي'}</span>
+        </div>
+
+        <div style="color:var(--text-secondary);line-height:1.8;margin-bottom:2rem" id="product-desc"></div>
+
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:2rem">
+          <div class="card" style="text-align:center;padding:1rem">
+            <span class="icon icon-cyan icon-lg">computer</span>
+            <p style="font-size:0.75rem;color:var(--text-muted);margin-top:0.4rem">المنصة</p>
+            <p style="font-size:0.85rem;font-weight:600" id="product-platform"></p>
+          </div>
+          <div class="card" style="text-align:center;padding:1rem">
+            <span class="icon icon-green icon-lg">verified</span>
+            <p style="font-size:0.75rem;color:var(--text-muted);margin-top:0.4rem">الإصدار</p>
+            <p style="font-size:0.85rem;font-weight:600" id="product-version"></p>
+          </div>
+          <div class="card" style="text-align:center;padding:1rem">
+            <span class="icon icon-yellow icon-lg">download</span>
+            <p style="font-size:0.75rem;color:var(--text-muted);margin-top:0.4rem">التحميلات</p>
+            <p style="font-size:0.85rem;font-weight:600">${(p.downloads||0).toLocaleString()}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Buy Panel -->
+      <div>
+        <div class="card" style="position:sticky;top:80px">
+          ${disc > 0 ? `<div style="background:var(--accent-red);color:#fff;text-align:center;padding:0.4rem;border-radius:8px;font-size:0.8rem;font-weight:700;margin-bottom:1rem">خصم ${disc}%</div>` : ''}
+          ${p.original_price ? `<div style="color:var(--text-muted);text-decoration:line-through;font-size:0.9rem">${formatPrice(p.original_price)}</div>` : ''}
+          <div style="font-size:2.2rem;font-weight:800;color:var(--accent-green);margin-bottom:1.25rem">${formatPrice(p.price)}</div>
+
+          <div style="margin-bottom:1.25rem">
+            <label style="font-size:0.85rem;color:var(--text-secondary);display:block;margin-bottom:0.4rem">الكمية</label>
+            <div style="display:flex;align-items:center;gap:0.75rem">
+              <button onclick="changeQty(-1)" style="width:36px;height:36px;background:var(--bg-card2);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);cursor:pointer;display:flex;align-items:center;justify-content:center">
+                <span class="icon icon-sm">remove</span>
+              </button>
+              <span id="qty" style="font-size:1.1rem;font-weight:700;min-width:2rem;text-align:center">1</span>
+              <button onclick="changeQty(1)" style="width:36px;height:36px;background:var(--bg-card2);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);cursor:pointer;display:flex;align-items:center;justify-content:center">
+                <span class="icon icon-sm">add</span>
+              </button>
+            </div>
+          </div>
+
+          <button onclick="addToCart()" class="btn btn-primary btn-block btn-lg" style="margin-bottom:0.75rem">
+            <span class="icon">add_shopping_cart</span> أضف للسلة
+          </button>
+          <a href="/checkout.html" class="btn btn-secondary btn-block btn-lg" onclick="addToCart()">
+            <span class="icon">bolt</span> اشترِ الآن
+          </a>
+
+          <div class="cyber-line" style="margin:1.25rem 0"></div>
+
+          <div style="display:flex;flex-direction:column;gap:0.6rem">
+            <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-secondary)">
+              <span class="icon icon-sm icon-green">security</span> ضمان استرداد 30 يوم
+            </div>
+            <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-secondary)">
+              <span class="icon icon-sm icon-cyan">support_agent</span> دعم فني متاح 24/7
+            </div>
+            <div style="display:flex;align-items:center;gap:0.5rem;font-size:0.85rem;color:var(--text-secondary)">
+              <span class="icon icon-sm icon-yellow">inventory_2</span> المخزون: ${p.stock || 0} قطعة
+            </div>
+          </div>
+
+          <div class="cyber-line" style="margin:1.25rem 0"></div>
+          <p style="font-size:0.8rem;color:var(--text-muted)">البائع: <strong style="color:var(--text-primary)" id="store-name"></strong></p>
+        </div>
+      </div>`;
+
+    // استخدام textContent لعرض البيانات الديناميكية (XSS-safe)
+    document.getElementById('product-title').textContent = p.name;
+    document.getElementById('cat-name').textContent = p.category_name;
+    document.getElementById('product-desc').textContent = p.description || '';
+    document.getElementById('product-platform').textContent = p.platform || '—';
+    document.getElementById('product-version').textContent = p.version || '—';
+    document.getElementById('store-name').textContent = p.store_name || '—';
+
+    window._price = p.price;
+    document.getElementById('reviews-section').style.display = 'block';
+    loadReviews();
+    initReviewForm();
+
+  } catch (err) {
+    layout.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:4rem 0;color:var(--text-muted)">
+      <span class="icon icon-xl icon-red">error_outline</span>
+      <p style="margin-top:1rem">تعذر تحميل المنتج. <a href="/products.html" style="color:var(--accent-green)">العودة للمنتجات</a></p>
+    </div>`;
+  }
+}
+
+let qty = 1;
+function changeQty(d) { qty = Math.max(1, qty + d); document.getElementById('qty').textContent = qty; }
+
+function addToCart() {
+  const name = document.getElementById('breadcrumb-name').textContent;
+  Cart.add({ id: parseInt(productId), name, price: window._price || 0 }, qty);
+}
+
+async function loadReviews() {
+  const list = document.getElementById('reviews-list');
+  try {
+    const res = await api(`/reviews.php?product_id=${productId}`);
+    if (!res.data || res.data.length === 0) {
+      list.innerHTML = `<div class="card" style="text-align:center;padding:2rem;color:var(--text-muted)">
+        <span class="icon icon-xl icon-muted">rate_review</span>
+        <p style="margin-top:0.75rem">لا توجد مراجعات بعد. كن أول من يراجع!</p>
+      </div>`;
+      return;
+    }
+    // البيانات معقّمة من الباك إند (sanitizeOutput في reviews.php)
+    // نستخدم textContent للمحتوى الذي يأتي من المستخدمين
+    list.innerHTML = '';
+    res.data.forEach(r => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.style.marginBottom = '1rem';
+
+      const header = document.createElement('div');
+      header.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem';
+      header.innerHTML = `
+        <div style="display:flex;align-items:center;gap:0.5rem">
+          <span class="icon icon-green">account_circle</span>
+          <strong style="font-size:0.9rem" id="reviewer-${r.id}"></strong>
+        </div>
+        <div style="display:flex;align-items:center;gap:0.2rem">${renderStars(r.rating)}</div>`;
+      card.appendChild(header);
+
+      const title = document.createElement('p');
+      title.style.cssText = 'font-weight:600;font-size:0.9rem;margin-bottom:0.25rem';
+      title.textContent = r.title || '';
+      card.appendChild(title);
+
+      const comment = document.createElement('div');
+      comment.style.cssText = 'color:var(--text-secondary);font-size:0.85rem';
+      comment.textContent = r.comment;
+      card.appendChild(comment);
+
+      const date = document.createElement('p');
+      date.style.cssText = 'font-size:0.75rem;color:var(--text-muted);margin-top:0.5rem';
+      date.textContent = new Date(r.created_at).toLocaleDateString('ar-SA');
+      card.appendChild(date);
+
+      list.appendChild(card);
+
+      // textContent لاسم المراجع
+      const reviewerEl = card.querySelector(`#reviewer-${r.id}`);
+      if (reviewerEl) reviewerEl.textContent = r.first_name || r.username;
+    });
+  } catch {
+    list.innerHTML = `<div class="card" style="color:var(--text-muted);padding:1.5rem;text-align:center">تعذر تحميل المراجعات</div>`;
+  }
+}
+
+function initReviewForm() {
+  const card = document.getElementById('review-form-content');
+  const user = Auth.getUser();
+  if (!user) {
+    card.innerHTML = `<div style="text-align:center;padding:1.5rem;color:var(--text-muted)">
+      <span class="icon icon-xl icon-muted">lock</span>
+      <p style="margin-top:0.75rem;font-size:0.9rem">يجب <a href="/login.html" style="color:var(--accent-green)">تسجيل الدخول</a> لإضافة مراجعة</p>
+    </div>`;
+    return;
+  }
+  card.innerHTML = `
+    <form onsubmit="submitReview(event)">
+      <div class="form-group">
+        <label class="form-label">التقييم</label>
+        <div id="star-selector" style="display:flex;gap:0.25rem;font-size:1.8rem;cursor:pointer">
+          ${[1,2,3,4,5].map(n=>`<span class="icon icon-xl" id="star-${n}" onclick="setRating(${n})" style="color:var(--text-muted);cursor:pointer">star_border</span>`).join('')}
+        </div>
+        <input type="hidden" id="rating-val" value="0">
+      </div>
+      <div class="form-group">
+        <label class="form-label">العنوان</label>
+        <input type="text" id="review-title" class="form-control" placeholder="ملخص مراجعتك" maxlength="200">
+      </div>
+      <div class="form-group">
+        <label class="form-label">التعليق</label>
+        <textarea id="review-comment" class="form-control" rows="4" placeholder="شارك تجربتك..." style="resize:vertical" maxlength="1000"></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">
+        <span class="icon">send</span> إرسال المراجعة
+      </button>
+    </form>`;
+}
+
+let selectedRating = 0;
+function setRating(n) {
+  selectedRating = n;
+  document.getElementById('rating-val').value = n;
+  for (let i = 1; i <= 5; i++) {
+    const s = document.getElementById(`star-${i}`);
+    s.textContent = i <= n ? 'star' : 'star_border';
+    s.style.color  = i <= n ? '#fbbf24' : 'var(--text-muted)';
+  }
+}
+
+async function submitReview(e) {
+  e.preventDefault();
+  if (!selectedRating) { showToast('يرجى اختيار تقييم', 'warning'); return; }
+  try {
+    await api('/reviews.php', {
+      method: 'POST',
+      body: JSON.stringify({
+        product_id: parseInt(productId),
+        rating:     selectedRating,
+        title:      document.getElementById('review-title').value,
+        comment:    document.getElementById('review-comment').value,
+      }),
+    });
+    showToast('تم إضافة مراجعتك!', 'success');
+    loadReviews();
+  } catch (err) { showToast(err.message, 'error'); }
+}
+
+loadProduct();
+</script>
+</body>
+</html>

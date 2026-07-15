@@ -12,34 +12,39 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1. نسخ الكود باستخدام الإصدار الحديث v4
       - name: Checkout Code
         uses: actions/checkout@v4
 
+      # 2. تشغيل الخدمات باستخدام docker compose الحديثة
       - name: Start Application Services
         run: |
           docker compose up -d
 
+      # 3. إعطاء مهلة لإقلاع الخدمات بنجاح
       - name: Wait for Services to be Healthy
         run: |
           echo "Waiting for services to boot up..."
           sleep 15
 
-      # تشغيل الفحص باستخدام صورة مستقرة ومحددة الإصدار من مستودع جيت هاب (GHCR)
+      # 4. تشغيل الفحص باستخدام صورة ZAP الرسمية والنشطة على GHCR
       - name: Run OWASP ZAP Baseline Scan
         run: |
           mkdir -p zap-reports
           docker run --rm \
             --network cybertools-secure-network \
             -v $(pwd)/zap-reports:/zap/wrk/:rw \
-            ghcr.io/zaproxy/zap2docker-stable:2.13.0 zap-baseline.py \
+            ghcr.io/zaproxy/zaproxy:stable zap-baseline.py \
             -t http://cybertools-frontend:80 \
             -r security-report.html
 
+      # 5. تنظيف وتدمير الحاويات فوراً بعد الفحص لحفظ الموارد
       - name: Stop and Clean Up Containers
         if: always()
         run: |
           docker compose down -v --rmi local
 
+      # 6. رفع تقرير الفحص الأمني النهائي باستخدام الإصدار v4 المعتمد
       - name: Upload ZAP Scan Report
         if: always()
         uses: actions/upload-artifact@v4

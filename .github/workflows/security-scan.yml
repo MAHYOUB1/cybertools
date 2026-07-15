@@ -1,0 +1,61 @@
+name: Security DAST Scan (OWASP ZAP)
+
+# 1. متى يشتغل خط الإنتاج؟ (عند رفع كود جديد أو عمل Pull Request على فرع main)
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  zap_security_scan:
+    name: Run App and Scan with ZAP
+    runs-on: ubuntu-latest # تشغيل الفحص على سيرفر لينكس سحابي توفره جيت هاب
+
+    steps:
+      # الخطوة الأولى: نسخ كود مشروعك إلى السيرفر السحابي
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # الخطوة الثانية: تشغيل خدمات التطبيق بالكامل باستخدام Docker Compose
+      - name: Start Application Services
+        run: |
+          docker-compose up -d
+        # هذا الأمر يشغل (db, backend, frontend) في الخلفية وينشئ الشبكة الآمنة
+
+      # الخطوة الثالثة: الانتظار والتحقق من صحة الخدمات (Health Check)
+      # لنبدأ الفحص فقط عندما تتأكد من جاهزية قاعدة البيانات والباك إند بالكامل
+      - name: Wait for Services to be Healthy
+        run: |
+          echo "Waiting for services to boot up..."
+          sleep 15 # إعطاء مهلة 15 ثانية للخدمات لتبدأ العمل بمرونة
+
+      # الخطوة الرابعة: تشغيل حاوية ZAP للفحص الديناميكي
+      - name: Run OWASP ZAP Baseline Scan
+        run: |
+          # ننشئ المجلد محلياً لحفظ التقارير بداخل السيرفر السحابي
+          mkdir -p zap-reports
+          
+          # نشغل حاوية ZAP ونربطها بنفس الشبكة كما فعلنا في جهازك المحلي
+          docker run --rm \
+            --network cybertools-secure-network \
+            -v $(pwd)/zap-reports:/zap/wrk/:rw \
+            owasp/zap2docker-stable zap-baseline.py \
+            -t http://cybertools-frontend:80 \
+            -r security-report.html
+        # الحاوية ستدمر نفسها فوراً بعد الفحص بسبب علمية '--rm'[cite: 1]
+
+      # الخطوة الخامسة: تدمير الخدمات بالكامل للحفاظ على الموارد
+      - name: Stop and Clean Up Containers
+        if: always() # نضمن تشغيل هذا السطر دائماً حتى لو فشل فحص ZAP أو نجح
+        run: |
+          docker-compose down -v --rmi local
+        # هذا الأمر يوقف الحاويات ويمسح الشبكة ويحذف الصور المبنية محلياً لتصفير الموارد تماماً
+
+      # الخطوة السادسة: حفظ تقرير الفحص كملف قابل للتحميل من جيت هاب
+      - name: Upload ZAP Scan Report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: zap-security-report
+          path: zap-reports/security-report.html

@@ -55,7 +55,7 @@ jobs:
       # الخطوة السادسة: حفظ تقرير الفحص كملف قابل للتحميل من جيت هاب
       - name: Upload ZAP Scan Report
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: zap-security-report
           path: zap-reports/security-report.html

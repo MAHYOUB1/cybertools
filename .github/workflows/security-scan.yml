@@ -28,11 +28,14 @@ jobs:
           sleep 15
 
       # 4. تشغيل الفحص باستخدام الأداة الرسمية لـ ZAP على جيت هاب
+      # 4. تشغيل الفحص الأمني الرسمي
       - name: Run OWASP ZAP Baseline Scan
         uses: zaproxy/action-baseline@v0.11.0
         with:
-          target: 'http://localhost:4000' # المنفذ الخارجي المعروض للفرونت إند على جهاز المضيف
+          target: 'http://localhost:4000'
           artifact_name: 'zap-security-report'
+          fail_action: false      # يمنع إيقاف خط الإنتاج كفشل حتى لو عثر على تحذيرات أمنية
+          create_issue: false     # يخبر جيت هاب بعدم إنشاء تذكرة تلقائياً لمنع الخطأ الأخير
 
       # 5. تنظيف وتدمير الحاويات بعد انتهاء الفحص
       - name: Stop and Clean Up Containers

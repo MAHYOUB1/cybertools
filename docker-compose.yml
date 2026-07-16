@@ -13,7 +13,7 @@ networks:
   cybertools-secure-net:
     driver: bridge
     name: cybertools-secure-network
-    # شبكة داخلية - تمنع الحاويات من الاتصال بالإنترنت مباشرة
+    
     internal: false
 
 volumes:
@@ -34,9 +34,7 @@ services:
       MYSQL_DATABASE: cybertools
       MYSQL_USER: cyberuser
       MYSQL_PASSWORD: ${DB_PASSWORD:-cyberpass123}
-    # لا نعرض منفذ MySQL للخارج (حماية)
-    # ports:
-    #   - "3306:3306"
+    
     expose:
       - "3306"
     volumes:

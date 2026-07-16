@@ -50,7 +50,7 @@ jobs:
           name: zap-security-report
           path: zap-reports/
 
-      # 6. تنظيف وتدمير الحاويات بعد انتهاء الفحص
+      # 6. تنظيف  الحاويات بعد انتهاء الفحص
       - name: Stop and Clean Up Containers
         if: always()
         run: |

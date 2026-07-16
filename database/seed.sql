@@ -11,7 +11,7 @@ SET NAMES utf8mb4;
 -- seller123 → $2y$12$Kx8VPqHs5fD1oEkJzLmQ5.YpV2hqP6W3xMnOb4kGz9vT7rU8sC1X6
 -- pass123 → $2y$12$Wx3RfPqYs8eD2oGkJzNm6.ZqW3hqR7X4yNoQc5lHz0wU8tS2vD3Y7
 INSERT INTO users (username, email, password, first_name, last_name, phone, role) VALUES
-('admin', 'admin@cybertools.local', '$2y$12$LJ3m4ys3Gz8y3nge0MDSSOdQhOYFBhMXOp3B0rLAz3bCm8tNGeRWa', 'Ahmed', 'Admin', '0501234567', 'admin'),
+('admin', 'admin@cybertools.local', '$2y$12$LJ3m4ys3Gz8y3nge0MDSSOdQhOYFBhMXOp3B0rLAz3bCm8tNGeRWa', 'Mahyoub', 'Admin', '0501234567', 'admin'),
 ('seller1', 'seller1@cybertools.local', '$2y$12$Kx8VPqHs5fD1oEkJzLmQ5.YpV2hqP6W3xMnOb4kGz9vT7rU8sC1X6', 'Mohammed', 'AlSecurity', '0502345678', 'seller'),
 ('seller2', 'seller2@cybertools.local', '$2y$12$Kx8VPqHs5fD1oEkJzLmQ5.YpV2hqP6W3xMnOb4kGz9vT7rU8sC1X6', 'Khalid', 'CyberPro', '0503456789', 'seller'),
 ('seller3', 'seller3@cybertools.local', '$2y$12$Kx8VPqHs5fD1oEkJzLmQ5.YpV2hqP6W3xMnOb4kGz9vT7rU8sC1X6', 'Omar', 'NetDefend', '0504567890', 'seller'),
